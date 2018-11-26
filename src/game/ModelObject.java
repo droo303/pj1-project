@@ -5,15 +5,20 @@ public abstract class ModelObject {
     private Point2D position;
     private double direction;
     private final Point2D imageOffset;
+    private Point2D dir;
 
     public Point2D getDir() {
         return dir;
     }
 
-    private Point2D dir;
+    public void setDir(Point2D dir) {
+        this.dir = dir;
+    }
+
+
 
     public ModelObject(Point2D position, Point2D imageOffset) {
-        this.position = new Point2D(position.getX(), position.getY());
+        this.position = position;
         this.imageOffset = imageOffset;
     }
 
@@ -41,7 +46,6 @@ public abstract class ModelObject {
             angle = -angle;
         }
         this.direction = angle;
-
         this.dir= imageRotation.add(direction).normalize();
     }
 
