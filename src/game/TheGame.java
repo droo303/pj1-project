@@ -11,17 +11,20 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
+import java.io.IOException;
+
 public class TheGame extends Application {
     private Model model;
     private View view;
     private Controller controller;
+    private Client client;
 
     public TheGame() {
         model = new Model();
     }
 
     @Override
-    public void start(Stage primaryStage) {
+    public void start(Stage primaryStage) throws IOException {
         AnchorPane basePane = new AnchorPane();
         Button btnStart = new Button();
         btnStart.setText("Start game");
@@ -55,6 +58,7 @@ public class TheGame extends Application {
 
         view = new View(canvas.getGraphicsContext2D(), model);
         controller = new Controller(view, model);
+
         canvas.addEventHandler(MouseEvent.MOUSE_MOVED, new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {

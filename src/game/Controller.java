@@ -1,10 +1,12 @@
 package game;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.util.Duration;
@@ -13,14 +15,18 @@ public class Controller {
     private Timeline timer;
     private View view;
     private Model model;
+    public boolean createTreesHere;
+    public boolean createTreesElsewhere;
+    Thread t;
+
     private int cnt = 5;
 
 
-    public Controller(View view, Model model) {
-        timer = new Timeline(new KeyFrame(Duration.millis(50), new EventHandler<javafx.event.ActionEvent>() {
+    public Controller(View view, Model model) throws IOException {
+        Thread t = new Thread(new Client(this));
+        EventHandler<ActionEvent> eventHandler = new EventHandler<ActionEvent>() {
             @Override
-            public void handle(javafx.event.ActionEvent event) {
-                System.out.println();
+            public void handle(ActionEvent event) {
                 boolean makeNewCoin = false;
                 Random rand = new Random();
                 synchronized (model) {
@@ -48,24 +54,23 @@ public class Controller {
                                 if (obj instanceof Coin) {
                                     if (samePlace(obj, object)) {
                                         toDelete.add(obj);
-                                        makeNewCoin = true;
+                                        createTreesElsewhere = true;
                                     }
                                 }
-                                if(makeNewCoin) {
-
+                                if (createTreesHere) {
                                     for (int i = 0; i < 2; i++) {
                                         boolean bad = false;
                                         Tree newTree;
                                         do {
                                             bad = false;
-                                            newTree = new Tree(new Point2D(rand.nextInt(View.WIDTH + 1 - 100)+50, rand.nextInt(View.HEIGHT + 1 - 100)+50), new Point2D(0, 0));
+                                            newTree = new Tree(new Point2D(rand.nextInt(View.WIDTH + 1 - 100) + 50, rand.nextInt(View.HEIGHT + 1 - 100) + 50), new Point2D(0, 0));
                                             for (ModelObject ob : model.getObjects()) {
                                                 if (ob.getPosition().distance(newTree.getPosition()) < 20) {
                                                     bad = true;
                                                     break;
                                                 }
                                             }
-                                        } while ( bad );
+                                        } while (bad);
 
                                         toAdd.add(newTree);
                                     }
@@ -73,34 +78,53 @@ public class Controller {
                                     Coin newCoin;
                                     do {
                                         badCoin = false;
-                                        newCoin = new Coin(new Point2D(rand.nextInt(View.WIDTH + 1 - 100)+50, rand.nextInt(View.HEIGHT + 1 - 100)+50), new Point2D(0, 0));
+                                        newCoin = new Coin(new Point2D(rand.nextInt(View.WIDTH + 1 - 100) + 50, rand.nextInt(View.HEIGHT + 1 - 100) + 50), new Point2D(0, 0));
                                         for (ModelObject ob : model.getObjects()) {
                                             if (ob.getPosition().distance(newCoin.getPosition()) < 20) {
                                                 badCoin = true;
                                                 break;
                                             }
                                         }
-                                    } while ( badCoin );
+                                    } while (badCoin);
                                     toAdd.add(newCoin);
 
                                     view.update();
-                                    makeNewCoin = false;
+                                    createTreesHere = false;
                                 }
 
                             }
                         }
                         object.process();
+                        if (object.isOutOfSpaceX()){
+                            if (object.getPosition().getX() < 0){
+                                object.setPositionX(View.WIDTH);
+                            } else if (object.getPosition().getX() > View.WIDTH){
+                                object.setPositionX(0);
+                            }
+
+                        } else if (object.isOutOfSpaceY()){
+                           if (object.getPosition().getY() < 0){
+                               object.setPositionY(View.HEIGHT);
+                           } else if (object.getPosition().getY() > View.HEIGHT){
+                               object.setPositionY(0);
+                           }
+                        }
                     }
                     model.getObjects().removeAll(toDelete);
                     model.objects.addAll(toAdd);
                 }
                 view.update();
             }
-        }));
+        };
+        timer = new Timeline(new KeyFrame(Duration.millis(50), eventHandler));
+        //client.setEventHandler(eventHandler);
 
         timer.setCycleCount(Timeline.INDEFINITE);
         this.model = model;
         this.view = view;
+        //this.createTreesHere = false;
+        //this.createTreesElsewhere = false;
+        t.start();
     }
 
     public boolean isRunning() {

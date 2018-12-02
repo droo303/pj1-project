@@ -2,6 +2,8 @@ package game;
 import javafx.geometry.Point2D;
 
 public abstract class ModelObject {
+
+
     private Point2D position;
     private double direction;
     private final Point2D imageOffset;
@@ -30,6 +32,14 @@ public abstract class ModelObject {
         return position.getY();
     }
 
+    public void setPositionX( double position) {
+        this.position = new Point2D(position,this.getY());
+    }
+
+    public void setPositionY( double position) {
+        this.position = new Point2D(this.getX(),position);
+    }
+
     public Point2D getPosition() {
         return this.position;
     }
@@ -49,10 +59,14 @@ public abstract class ModelObject {
         this.dir= imageRotation.add(direction).normalize();
     }
 
-    public boolean isOutOfSpace() {
+    public boolean isOutOfSpaceX() {
         if (this.position.getX() < 0 || this.position.getX() > View.WIDTH) {
             return true;
         }
+        return false;
+    }
+
+    public boolean isOutOfSpaceY(){
         if (this.position.getY() < 0 || this.position.getY() > View.HEIGHT) {
             return true;
         }

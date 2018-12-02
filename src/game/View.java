@@ -23,7 +23,7 @@ public class View {
         man = new Image("file:src/game/image/man40_37.png");
         coin = new Image("file:src/game/image/coin35_35.png");
         gameOver = new Image("file:src/game/image/gameover.png");
-        tree  = new Image("file:src/game/image/tree40_40.png");
+        tree  = new Image("file:src/game/image/tree40_40 - kopie.png");
         this.model = model;
         update();
     }
