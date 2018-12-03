@@ -17,9 +17,10 @@ public class Controller {
     private Model model;
     public boolean createTreesHere;
     public boolean createTreesElsewhere;
-    Thread t;
+    public boolean youWon;
+    public boolean heWon;
 
-    private int cnt = 5;
+
 
 
     public Controller(View view, Model model) throws IOException {
@@ -27,24 +28,18 @@ public class Controller {
         EventHandler<ActionEvent> eventHandler = new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                boolean makeNewCoin = false;
                 Random rand = new Random();
                 synchronized (model) {
-
                     ArrayList<ModelObject> toDelete = new ArrayList<>();
                     ArrayList<ModelObject> toAdd = new ArrayList<>();
                     for (ModelObject object : model.getObjects()) {
                         object.setDir(model.getDir());
-                        /*if (object instanceof Man && object.getPosition().distance(model.mousePoint.getX(), model.mousePoint.getY()) < 10) {
-                            gameOver();
-                            stop();
-                            view.over = true;
 
-                        }*/
                         if (object instanceof Man) {
                             for (ModelObject obj : model.getObjects()) {
                                 if (obj instanceof Tree) {
                                     if (samePlace(obj, object)) {
+                                        heWon = true;
                                         gameOver();
                                         stop();
                                         view.over = true;
@@ -55,6 +50,23 @@ public class Controller {
                                     if (samePlace(obj, object)) {
                                         toDelete.add(obj);
                                         createTreesElsewhere = true;
+
+                                        boolean badCoin = false;
+                                        Coin newCoin;
+                                        do {
+                                            badCoin = false;
+                                            newCoin = new Coin(new Point2D(rand.nextInt(View.WIDTH + 1 - 100) + 50, rand.nextInt(View.HEIGHT + 1 - 100) + 50), new Point2D(0, 0));
+                                            for (ModelObject ob : model.getObjects()) {
+                                                if (ob.getPosition().distance(newCoin.getPosition()) < 20) {
+                                                    badCoin = true;
+                                                    break;
+                                                }
+                                            }
+                                        } while (badCoin);
+                                        toAdd.add(newCoin);
+
+                                        view.update();
+                                        createTreesHere = false;
                                     }
                                 }
                                 if (createTreesHere) {
@@ -74,20 +86,6 @@ public class Controller {
 
                                         toAdd.add(newTree);
                                     }
-                                    boolean badCoin = false;
-                                    Coin newCoin;
-                                    do {
-                                        badCoin = false;
-                                        newCoin = new Coin(new Point2D(rand.nextInt(View.WIDTH + 1 - 100) + 50, rand.nextInt(View.HEIGHT + 1 - 100) + 50), new Point2D(0, 0));
-                                        for (ModelObject ob : model.getObjects()) {
-                                            if (ob.getPosition().distance(newCoin.getPosition()) < 20) {
-                                                badCoin = true;
-                                                break;
-                                            }
-                                        }
-                                    } while (badCoin);
-                                    toAdd.add(newCoin);
-
                                     view.update();
                                     createTreesHere = false;
                                 }
@@ -95,20 +93,26 @@ public class Controller {
                             }
                         }
                         object.process();
-                        if (object.isOutOfSpaceX()){
-                            if (object.getPosition().getX() < 0){
+                        if (object.isOutOfSpaceX()) {
+                            if (object.getPosition().getX() < 0) {
                                 object.setPositionX(View.WIDTH);
-                            } else if (object.getPosition().getX() > View.WIDTH){
+                            } else if (object.getPosition().getX() > View.WIDTH) {
                                 object.setPositionX(0);
                             }
 
-                        } else if (object.isOutOfSpaceY()){
-                           if (object.getPosition().getY() < 0){
-                               object.setPositionY(View.HEIGHT);
-                           } else if (object.getPosition().getY() > View.HEIGHT){
-                               object.setPositionY(0);
-                           }
+                        } else if (object.isOutOfSpaceY()) {
+                            if (object.getPosition().getY() < 0) {
+                                object.setPositionY(View.HEIGHT);
+                            } else if (object.getPosition().getY() > View.HEIGHT) {
+                                object.setPositionY(0);
+                            }
                         }
+                    }
+                    if (youWon){
+                        won();
+                        stop();
+                        view.over = true;
+                        youWon = false;
                     }
                     model.getObjects().removeAll(toDelete);
                     model.objects.addAll(toAdd);
@@ -117,13 +121,9 @@ public class Controller {
             }
         };
         timer = new Timeline(new KeyFrame(Duration.millis(50), eventHandler));
-        //client.setEventHandler(eventHandler);
-
         timer.setCycleCount(Timeline.INDEFINITE);
         this.model = model;
         this.view = view;
-        //this.createTreesHere = false;
-        //this.createTreesElsewhere = false;
         t.start();
     }
 
@@ -149,6 +149,11 @@ public class Controller {
     void gameOver() {
         timer.stop();
         view.over();
+    }
+
+    void won() {
+        timer.stop();
+        view.winner();
     }
 
 }

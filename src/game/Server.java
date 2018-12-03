@@ -51,6 +51,9 @@ public class Server extends Thread {
                             if (p1.startsWith("addcoin")) {
                                 bis2.println("addcoin");
                             }
+                            if (p1.startsWith("youwon")){
+                                bis2.println("youwon");
+                            }
                         }
                     }
 
@@ -59,6 +62,9 @@ public class Server extends Thread {
                     if (!p2.equalsIgnoreCase("")) { // if what p1 says is something
                         if (p2.startsWith("addcoin")) {
                             bis1.println("addcoin");
+                        }
+                        if (p2.startsWith("youwon")){
+                            bis1.println("youwon");
                         }
                     }
                 }

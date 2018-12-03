@@ -8,8 +8,6 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 public class Client implements Runnable {
-    public boolean createNewCoin = false;
-    public boolean otherPlayerCreatedCoin = false;
     public BufferedReader br;
     public Socket socket;
     public PrintWriter out;
@@ -36,17 +34,22 @@ public class Client implements Runnable {
             e.printStackTrace();
         }
         while(true) {
-            String userInput;
             String server;
             if (this.controller.createTreesElsewhere) {
                 out.println("addcoin");
                 this.controller.createTreesElsewhere = false;
+            }
+            if (this.controller.heWon){
+                out.println("youwon");
+                this.controller.heWon = false;
             }
             try {
                 if (br.ready()) {
                     server = br.readLine();
                     if (server.equals("addcoin")) {
                         this.controller.createTreesHere = true;
+                    } else if (server.equals("youwon")){
+                        this.controller.youWon = true;
                     }
                 }
             } catch (IOException e) {

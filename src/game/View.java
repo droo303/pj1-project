@@ -12,10 +12,11 @@ public class View {
     public final static int WIDTH = 800;
 
     private final GraphicsContext context;
-    private final Image background, man, coin, tree, gameOver;
+    private final Image background, man, coin, tree, gameOver, winner;
 
     private final Model model;
     boolean over = false;
+    boolean isWinner = false;
 
     View(GraphicsContext context, Model model) {
         this.context = context;
@@ -23,6 +24,7 @@ public class View {
         man = new Image("file:src/game/image/man40_37.png");
         coin = new Image("file:src/game/image/coin35_35.png");
         gameOver = new Image("file:src/game/image/gameover.png");
+        winner = new Image("file:src/game/image/winner.png");
         tree  = new Image("file:src/game/image/tree40_40 - kopie.png");
         this.model = model;
         update();
@@ -38,7 +40,7 @@ public class View {
     }
 
     public void update() {
-        if (!over) {
+        if (!over && !isWinner) {
             context.drawImage(background, 0, 0, WIDTH, HEIGHT);
             context.setStroke(Color.BLUE);
             context.setLineWidth(2);
@@ -47,7 +49,6 @@ public class View {
                 for (ModelObject object : model.getObjects()) {
                     context.save();
                     rotate(object.getDirection(), object.getPosition());
-                    //model.getObjects().
                     if (object instanceof Man) {
                         drawImage(man, object.getPosition());
                     } else if (object instanceof Coin){
@@ -63,5 +64,8 @@ public class View {
 
     public void over() {
         context.drawImage(gameOver, 0, 0, WIDTH, HEIGHT);
+    }
+    public void winner(){
+        context.drawImage(winner,0,0,WIDTH,HEIGHT);
     }
 }
